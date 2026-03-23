@@ -1,0 +1,193 @@
+#!/bin/bash
+# AuraConfig - Minimalist Modular Orchestrator
+
+set -eo pipefail
+
+# Check jq
+if ! command -v jq &>/dev/null; then
+    echo "Error: jq is required but not installed" >&2
+    echo "" >&2
+    echo "Install with:" >&2
+    echo "  openSUSE:  sudo zypper install jq" >&2
+    echo "  Arch:      sudo pacman -S jq" >&2
+    echo "  Debian:    sudo apt install jq" >&2
+    echo "  Fedora:    sudo dnf install jq" >&2
+    exit 1
+fi
+
+# Check Bash version 4.0+
+if [[ "${BASH_VERSINFO[0]}" -lt 4 ]]; then
+    echo "Error: Bash 4.0+ is required (current: ${BASH_VERSION})" >&2
+    exit 1
+fi
+
+# Directory paths
+readonly SCRIPT_PATH="$(readlink -f "$0" 2>/dev/null || realpath "$0")"
+readonly SHELL_NAME="$(basename "$0")"
+
+# XDG Base Directory Specification
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+
+# Detect if installed or in development mode
+if [[ "$SCRIPT_PATH" == *".local/bin"* ]]; then
+    readonly AURA_LIB_DIR="$HOME/.local/lib/auraconfig"
+    readonly AURA_SHARE_DIR="${XDG_DATA_HOME}/auraconfig"
+    readonly AURA_CACHE_DIR="${XDG_CACHE_HOME}/auraconfig"
+else
+    readonly AURA_BASE="$(dirname "$SCRIPT_PATH")/.."
+    readonly AURA_LIB_DIR="$AURA_BASE/lib"
+    readonly AURA_SHARE_DIR="$AURA_BASE/share"
+    readonly AURA_CACHE_DIR="${XDG_CACHE_HOME}/auraconfig-dev"
+
+fi
+
+# Export paths
+export AURA_LIB_DIR
+export AURA_SHARE_DIR
+export AURA_CACHE_DIR
+
+# Get version
+readonly AURA_VERSION="$(cat "$AURA_SHARE_DIR/VERSION" 2>/dev/null || echo "0.1.0")"
+export AURA_VERSION
+
+# Validate directories
+if [[ ! -d "$AURA_LIB_DIR" ]]; then
+    echo "Error: Library directory not found: $AURA_LIB_DIR" >&2
+    exit 1
+fi
+if [[ ! -d "$AURA_SHARE_DIR" ]]; then
+    echo "Error: Share directory not found: $AURA_SHARE_DIR" >&2
+    exit 1
+fi
+
+# Create cache directory if doesn't exist
+mkdir -p "$AURA_CACHE_DIR"
+
+# Load core system
+load_core() {
+    local core_files=(
+        "lexis.sh" 
+        "env.sh" 
+        "i18n.sh" 
+        "log.sh"        
+        "output.sh" 
+        "modules.sh"
+        "help.sh"
+    )
+    for core_file in "${core_files[@]}"; do
+        local file_path="$AURA_LIB_DIR/$core_file"
+        if [[ -f "$file_path" ]]; then
+            source "$file_path"
+        else
+            echo "Error: Core file not found: $core_file" >&2
+            echo "Path: $file_path" >&2
+            exit 1
+        fi
+    done
+}
+
+# Initialize
+load_core
+load_env
+i18n_init
+
+# NOW enable strict mode after everything is loaded
+set -u
+
+# Main
+main() {
+    local mode="${1:-help}"
+    local module="${2:-}"
+
+    # Handle global commands first
+    case "$mode" in
+        "help"|"-h"|"--help")
+            show_help
+            exit 0
+            ;;
+        "version"|"-v"|"--version")
+            echo "AuraConfig v${AURA_VERSION}"
+            echo "Bash ${BASH_VERSION}"
+            echo "jq $(jq --version 2>/dev/null || echo 'N/A')"
+            exit 0
+            ;;
+        "list"|"-l"|"--list")
+            list_modules
+            exit 0
+            ;;
+        "modules"|"-m"|"--modules")
+            manage_modules "$module" "${@:3}"
+            exit 0
+            ;;
+    esac
+    
+    # Determine mode and module
+    case "$mode" in
+        "waybar")
+            # Explicit mode specified
+            if [[ -z "$module" ]]; then
+                log "error" "$(translate "error_no_module")"
+                exit 1
+            fi
+            ;;
+        "action")
+            if [[ -z "$module" ]]; then
+                log "error" "$(translate "error_no_module")"
+                exit 1
+            fi
+            local action="${3:-}"
+            if [[ -z "$action" ]]; then
+                log "error" "$(translate "error_no_action")"
+                exit 1
+            fi
+            ;;
+        *)
+            module="$mode"
+            mode="terminal"
+            ;;
+    esac
+    
+    # Validate module name    
+    if [[ -z "$module" ]]; then
+        log "error" "$(translate "error_no_module")"
+        echo "$(translate "error_use_help")" >&2
+        exit 1
+    fi
+    
+    # Load module
+    load_module "$module"
+
+    # Execute based on mode
+    case "$mode" in
+        "waybar"|"terminal")
+            # Call module_${module}(mode)
+            local func_name="module_${module}"
+            
+            if declare -f "$func_name" &>/dev/null; then
+                "$func_name" "$mode"
+            else
+                log "error" "$(translate "error_function_not_defined")"
+                echo "Function not found: $func_name" >&2
+                exit 1
+            fi
+            ;;
+        "action")
+            local action="${3:-}"
+            local action_func="${module}_${action}"
+            shift 3 || true
+            
+            if declare -f "$action_func" &>/dev/null; then
+                "$action_func" "$@"
+            else
+                log "error" "$(translate "error_action_not_found"): $action"
+                echo "Function not found: $action_func" >&2
+                exit 1
+            fi
+            ;;
+    esac
+}
+
+# Execute
+main "$@"

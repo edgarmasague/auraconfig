@@ -1,0 +1,15 @@
+{
+  "name": "helloworld",
+  "version": "1.0.0",
+  "author": "Edgar",
+  "description": "Simple hello world module",
+  "description_en": "Simple hello world module",
+  "description_es": "Módulo simple de hello world",
+  "description_pt": "Módulo simples de hello world",
+  "category": "example",
+  "icon": "👋",
+  "config": {
+    "greeting": "Hello",
+    "update_interval": 10
+  }
+}

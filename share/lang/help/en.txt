@@ -1,0 +1,45 @@
+┌─────────────────────────────────────────┐
+│  ⚙️  AuraConfig __VERSION__                  │
+└─────────────────────────────────────────┘
+
+USAGE:
+  aura [module]                     Run module (terminal mode)
+  aura waybar [module]              Run module (Waybar JSON mode)
+  aura action [module] [action]     Execute module action
+  aura modules [command]            Manage modules
+
+EXECUTION MODES:
+  terminal                          Simple console output
+  waybar                            JSON output for Waybar
+  action                            Execute module actions
+
+MODULE MANAGEMENT:
+  modules list                      List all modules
+  modules info [module]             Show detailed information
+
+GENERAL COMMANDS:
+  help                              Show this help
+  version                           Show version
+  list                              Shortcut for 'modules list'
+
+EXAMPLES:
+  aura power                        Run power module
+  aura waybar power                 Power module in Waybar format
+  aura action radio toggle          Toggle radio play/pause
+  aura modules info power           View module information
+  aura list                         List all modules
+
+ENVIRONMENT VARIABLES:
+  AURA_LANG                         Language (auto|en|es|pt, default: auto)
+  AURA_DEBUG                        Enable debug mode (true|false)
+
+CONFIGURATION:
+  ~/.config/auraconfig/.env         Configuration file
+  ~/.local/share/auraconfig/        User modules
+
+PATHS:
+  ~/.local/bin/aura                 Executable
+  ~/.local/lib/auraconfig/          Libraries
+  ~/.local/share/auraconfig/        Resources
+  ~/.config/auraconfig/             Configuration
+  ~/.cache/auraconfig/              Cache
