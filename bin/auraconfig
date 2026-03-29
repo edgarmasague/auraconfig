@@ -49,7 +49,7 @@ export AURA_SHARE_DIR
 export AURA_CACHE_DIR
 
 # Get version
-readonly AURA_VERSION="$(cat "$AURA_SHARE_DIR/VERSION" 2>/dev/null || echo "0.1.0")"
+readonly AURA_VERSION="$(cat "$AURA_SHARE_DIR/VERSION" 2>/dev/null || echo "0.2.0")"
 export AURA_VERSION
 
 # Validate directories
@@ -69,8 +69,10 @@ mkdir -p "$AURA_CACHE_DIR"
 load_core() {
     local core_files=(
         "lexis.sh" 
+        "lethe.sh"
         "env.sh" 
         "i18n.sh" 
+        "cache.sh"
         "log.sh"        
         "output.sh" 
         "modules.sh"
@@ -121,12 +123,15 @@ main() {
             manage_modules "$module" "${@:3}"
             exit 0
             ;;
+        "cache")
+            handle_cache "${@:2}"
+            exit 0
+            ;;
     esac
     
     # Determine mode and module
     case "$mode" in
         "waybar")
-            # Explicit mode specified
             if [[ -z "$module" ]]; then
                 log "error" "$(translate "error_no_module")"
                 exit 1

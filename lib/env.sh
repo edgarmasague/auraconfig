@@ -7,12 +7,14 @@ readonly ENV_LOCATIONS=(
     "$HOME/.auraconfig"
     "./.env"
 )
+
 _trim() {
     local var="$1"
     var="${var#"${var%%[![:space:]]*}"}"
     var="${var%"${var##*[![:space:]]}"}"
     printf '%s' "$var"
 }
+
 _unquote() {
     local var="$1"
     var="${var%\"}"
@@ -22,6 +24,7 @@ _unquote() {
 
     printf '%s' "$var"
 }
+
 _clean_value() {
     local key="$1"
     local value="$2"
@@ -34,6 +37,7 @@ _clean_value() {
     CLEAN_KEY="$key"
     CLEAN_VALUE="$value"
 }
+
 # Load .env file
 load_env() {
     local env_file=""

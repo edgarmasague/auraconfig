@@ -12,7 +12,7 @@ SHAREDIR="$(cd "${AURADIR}/share" && pwd)"
 if [[ -f "${AURADIR}/share/VERSION" ]]; then
     VERSION=$(cat "${AURADIR}/share/VERSION")
 else
-    VERSION="0.1.0"
+    VERSION="0.2.0"
 fi
 
 # Load common functions

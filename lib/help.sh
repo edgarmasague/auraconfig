@@ -17,7 +17,6 @@ show_help() {
         echo "Usage:"
         echo "  aura <module>                   # Run module (terminal mode)"
         echo "  aura waybar <module>            # Run module (Waybar JSON mode)"
-        echo "  aura pretty <module>            # Run module (pretty/neofetch mode)"
         echo "  aura action <module> <command>  # Execute module action"
         echo ""
         echo "  aura list                       # List all modules"
@@ -30,9 +29,8 @@ show_help() {
         echo "  aura help                       # Show this help"
         echo ""
         echo "Examples:"
-        echo "  aura power                      # Show battery status"
-        echo "  aura waybar power               # Battery status as JSON"
-        echo "  aura pretty sysinfo             # System info (neofetch style)"
+        echo "  aura power_info                 # Show battery status"
+        echo "  aura waybar power_info          # Battery status as JSON"
         echo "  aura action radio toggle        # Toggle radio play/pause"
     fi
 }

@@ -1,7 +1,7 @@
 # AuraConfig - Makefile
 
 NAME     := auraconfig
-VERSION  := $(shell cat share/VERSION 2>/dev/null || echo "0.1.0")
+VERSION  := $(shell cat share/VERSION 2>/dev/null || echo "0.2.0")
 PREFIX   ?= $(HOME)/.local
 
 # Directories
@@ -48,4 +48,9 @@ help:
 	@echo "Requirements:"
 	@echo "  - Bash 4.0+"
 	@echo "  - jq"
+	@echo "  - curl (for weather module)"
 	@echo ""
+	@echo "Install paths:"
+	@echo "  bin:   $(BINDIR)"
+	@echo "  lib:   $(LIBDIR)"
+	@echo "  share: $(SHAREDIR)"

@@ -7,6 +7,7 @@ USAGE:
   aura waybar [module]              Run module (Waybar JSON mode)
   aura action [module] [action]     Execute module action
   aura modules [command]            Manage modules
+  aura cache [command]              Manage cache
 
 EXECUTION MODES:
   terminal                          Simple console output
@@ -17,6 +18,12 @@ MODULE MANAGEMENT:
   modules list                      List all modules
   modules info [module]             Show detailed information
 
+CACHE MANAGEMENT:
+  cache info                        Show all cache status
+  cache info [key]                  Show specific cache status
+  cache clear [key]                 Clear specific cache entry
+  cache clear-all                   Clear all cache
+
 GENERAL COMMANDS:
   help                              Show this help
   version                           Show version
@@ -26,7 +33,10 @@ EXAMPLES:
   aura power                        Run power module
   aura waybar power                 Power module in Waybar format
   aura action radio toggle          Toggle radio play/pause
+  aura action weather refresh       Force weather refresh
   aura modules info power           View module information
+  aura cache info                   Show cache status
+  aura cache clear weather          Clear weather cache
   aura list                         List all modules
 
 ENVIRONMENT VARIABLES:

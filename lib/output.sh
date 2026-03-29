@@ -19,37 +19,72 @@ render() {
     esac
 }
 
+_join_tooltip() {
+    local data="$1"
+    local sep="$2"
+    echo "$data" | jq -r ".tooltip | join(\"$sep\")"
+}
+
+_build_display() {
+    local icon="$1"
+    local text="$2"
+    local display="$3"
+    case "$display" in
+        "icon")      echo "$icon" ;;
+        "text")      echo "$text" ;;
+        "icon-text")
+            [[ -n "$icon" && -n "$text" ]] \
+                && echo "$icon $text" \
+                || echo "${icon}${text}" ;;
+    esac
+}
+
+# Convierte HTML a secuencias ANSI para terminal
+_html_to_ansi() {
+    sed \
+        -e 's|<b>\(.*\)</b>|\x1b[1m\1\x1b[0m|g' \
+        -e 's|<i>\(.*\)</i>|\x1b[3m\1\x1b[0m|g' \
+        -e 's|<u>\(.*\)</u>|\x1b[4m\1\x1b[0m|g' \
+        -e 's|<tt>\(.*\)</tt>|\x1b[2m\1\x1b[0m|g' \
+        -e 's|<big>\(.*\)</big>|\x1b[1m\1\x1b[0m|g' \
+        -e 's|<small>\(.*\)</small>|\x1b[2m\1\x1b[0m|g' \
+        -e "s|<span foreground='#f38ba8'>\(.*\)</span>|\x1b[91m\1\x1b[0m|g" \
+        -e "s|<span foreground='#f9e2af'>\(.*\)</span>|\x1b[93m\1\x1b[0m|g" \
+        -e "s|<span background='#a6e3a1' foreground='#11111b' weight='bold'>\(.*\)</span>|\x1b[42;30;1m\1\x1b[0m|g" \
+        -e 's|<span[^>]*>\(.*\)</span>|\1|g' \
+        -e 's|<[^>]*>||g'
+}
+
+_parse_data() {
+    local data="$1"
+    icon=$(echo "$data" | jq -r '.icon // ""')
+    text=$(echo "$data" | jq -r '.text // ""')
+    tooltip=$(echo "$data" | jq -r '.tooltip // .text')
+    class=$(echo "$data" | jq -r '.class // "info"')
+    display=$(echo "$data" | jq -r '.display // "icon-text"')
+}
+
 # Render for Waybar
 render_waybar() {
     local data="$1"
-    
     # Extract fields
-    local icon=$(echo "$data" | jq -r '.icon // ""')
-    local text=$(echo "$data" | jq -r '.text // ""')
-    local tooltip=$(echo "$data" | jq -r '.tooltip // .text')
-    local class=$(echo "$data" | jq -r '.class // "info"')
+    _parse_data "$data"
+    local display_text; display_text=$(_build_display "$icon" "$text" "$display")
+    local tooltip;      tooltip=$(_join_tooltip "$data" '\n')
+    [[ -z "$tooltip" ]] && tooltip="$display_text"
     
-    # Build display text with icon
-    local display_text=""
-    if [[ -n "$icon" && -n "$text" ]]; then
-        display_text="${icon} ${text}"
-    elif [[ -n "$icon" ]]; then
-        display_text="$icon"
-    elif [[ -n "$text" ]]; then
-        display_text="$text"
+    if [[ -n "$class" ]]; then
+        jq -nc \
+            --arg text    "$display_text" \
+            --arg tooltip "$tooltip" \
+            --arg class   "$class" \
+            '{text:$text, tooltip:$tooltip, class:$class}'
+    else
+        jq -nc \
+            --arg text    "$display_text" \
+            --arg tooltip "$tooltip" \
+            '{text:$text, tooltip:$tooltip}'
     fi
-    
-    # Use text as tooltip fallback if tooltip is empty
-    if [[ -z "$tooltip" ]]; then
-        tooltip="$text"
-    fi
-    
-    # Output JSON using jq
-    jq -nc \
-        --arg text "$display_text" \
-        --arg tooltip "$tooltip" \
-        --arg class "$class" \
-        '{text: $text, tooltip: $tooltip, class: $class}'
 }
 
 # Render for Terminal
@@ -57,28 +92,15 @@ render_terminal() {
     local data="$1"
     
     # Extract fields
-    local icon=$(echo "$data" | jq -r '.icon // ""')
-    local text=$(echo "$data" | jq -r '.text // ""')
-    local tooltip=$(echo "$data" | jq -r '.tooltip // ""')
-    local class=$(echo "$data" | jq -r '.class // "info"')
+    _parse_data "$data"
     
     # Check if icons should be shown (from .env)
     local show_icons=$(get_env "show_icons" "true")
     
-    # Build display text
-    local display_text=""
-    
+    local display_text
     if [[ "$show_icons" == "true" ]]; then
-        # With icons
-        if [[ -n "$icon" && -n "$text" ]]; then
-            display_text="${icon} ${text}"
-        elif [[ -n "$icon" ]]; then
-            display_text="$icon"
-        elif [[ -n "$text" ]]; then
-            display_text="$text"
-        fi
+        display_text=$(_build_display "$icon" "$text" "$display")
     else
-        # Without icons
         display_text="$text"
     fi
     
@@ -91,15 +113,11 @@ render_terminal() {
             echo -e "\e[31m[✗]\e[0m $display_text"
             ;;
         "warning")
-            echo -e "\e[33m[!]\e[0m $display_text"
-            ;;
-        *)
-            echo -e "\e[34m[i]\e[0m $display_text"
-            ;;
-    esac
-    
-    # Show tooltip if exists and different from text
-    if [[ -n "$tooltip" && "$tooltip" != "$text" ]]; then
-        echo "$tooltip"
+            echo -e "\e[33m[!]\e[0m $data" | jq -r '.tooltip[]?' | _html_to_ansi)
+    if [[ -n "$tooltip_lines" ]]; then
+        echo ""
+        echo -e "$tooltip_lines" | while IFS= read -r line; do
+            printf "  %s\n" "$line"
+        done
     fi
 }

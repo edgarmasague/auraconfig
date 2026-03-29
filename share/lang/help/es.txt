@@ -7,6 +7,7 @@ USO:
   aura waybar [módulo]              Ejecutar módulo (modo Waybar JSON)
   aura action [módulo] [acción]     Ejecutar acción del módulo
   aura modules [comando]            Gestionar módulos
+  aura cache [comando]              Gestionar caché
 
 MODOS DE EJECUCIÓN:
   terminal                          Salida simple en consola
@@ -17,16 +18,25 @@ GESTIÓN DE MÓDULOS:
   modules list                      Listar todos los módulos
   modules info [módulo]             Mostrar información detallada
 
+GESTIÓN DE CACHÉ:
+  cache info                        Mostrar estado de toda la caché
+  cache info [clave]                Mostrar estado de una entrada
+  cache clear [clave]               Limpiar entrada específica
+  cache clear-all                   Limpiar toda la caché
+
 COMANDOS GENERALES:
   help                              Mostrar esta ayuda
   version                           Mostrar versión
   list                              Atajo para 'modules list'
 
 EJEMPLOS:
-  aura power                        Ejecutar módulo power
-  aura waybar power                 Módulo power en formato Waybar
-  aura action radio toggle          Alternar reproducción de radio
-  aura modules info power           Ver información del módulo
+  aura power_info                   Ejecutar módulo power_info
+  aura waybar power_info            Power info en formato Waybar
+  aura action radio toggle          Alternar reproducción del radio
+  aura action weather refresh       Forzar actualización del tiempo
+  aura modules info weather         Ver información del módulo
+  aura cache info                   Ver estado de la caché
+  aura cache clear weather          Limpiar caché del tiempo
   aura list                         Listar todos los módulos
 
 VARIABLES DE ENTORNO:
