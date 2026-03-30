@@ -30,8 +30,12 @@ _build_display() {
     local text="$2"
     local display="$3"
     case "$display" in
-        "icon")      echo "$icon" ;;
-        "text")      echo "$text" ;;
+        "icon")
+            echo "$icon"
+            ;;
+        "text")
+            echo "$text"
+            ;;
         "icon-text")
             [[ -n "$icon" && -n "$text" ]] \
                 && echo "$icon $text" \
@@ -59,7 +63,7 @@ _parse_data() {
     local data="$1"
     icon=$(echo "$data" | jq -r '.icon // ""')
     text=$(echo "$data" | jq -r '.text // ""')
-    tooltip=$(echo "$data" | jq -r '.tooltip // .text')
+    tooltip_raw=$(echo "$data" | jq -r '.tooltip // .text')
     class=$(echo "$data" | jq -r '.class // "info"')
     display=$(echo "$data" | jq -r '.display // "icon-text"')
 }
@@ -69,9 +73,9 @@ render_waybar() {
     local data="$1"
     # Extract fields
     _parse_data "$data"
-    local display_text; display_text=$(_build_display "$icon" "$text" "$display")
-    local tooltip;      tooltip=$(_join_tooltip "$data" '\n')
-    [[ -z "$tooltip" ]] && tooltip="$display_text"
+    local display_text=$(_build_display "$icon" "$text" "$display")
+    local tooltip=$(_join_tooltip "$data" '\n')
+    [[ -z "$tooltip" || "$tooltip" == "null" ]] && tooltip="$display_text"
     
     if [[ -n "$class" ]]; then
         jq -nc \
@@ -97,12 +101,14 @@ render_terminal() {
     # Check if icons should be shown (from .env)
     local show_icons=$(get_env "show_icons" "true")
     
-    local display_text
     if [[ "$show_icons" == "true" ]]; then
         display_text=$(_build_display "$icon" "$text" "$display")
     else
         display_text="$text"
     fi
+
+    local module_name=$(basename "${AURA_MODULE_DIR:-}")
+    [[ -n "$module_name" ]] && echo -e "\e[2m── $module_name ──\e[0m"
     
     # Show with color based on class
     case "$class" in
@@ -113,7 +119,13 @@ render_terminal() {
             echo -e "\e[31m[✗]\e[0m $display_text"
             ;;
         "warning")
-            echo -e "\e[33m[!]\e[0m $data" | jq -r '.tooltip[]?' | _html_to_ansi)
+            echo -e "\e[33m[!]\e[0m $display_text"
+            ;;
+        *)
+            echo -e "\e[34m[i]\e[0m $display_text"
+            ;;
+    esac
+    local tooltip_lines=$(echo "$data" | jq -c '.tooltip // []' | jq -r '.[]?' | _html_to_ansi)
     if [[ -n "$tooltip_lines" ]]; then
         echo ""
         echo -e "$tooltip_lines" | while IFS= read -r line; do
