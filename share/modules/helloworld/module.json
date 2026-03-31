@@ -1,8 +1,7 @@
 {
   "name": "helloworld",
   "version": "1.0.0",
-  "author": "Edgar",
-  "description": "Simple hello world module",
+  "author": "Edgar Masagué",
   "description_en": "Simple hello world module",
   "description_es": "Módulo simple de hello world",
   "description_pt": "Módulo simples de hello world",
