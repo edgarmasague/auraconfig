@@ -83,6 +83,14 @@ lethe_has() {
     [[ "$now" -lt "$expires_at" ]]
 }
 
+# lethe_minutes <n>
+# Convert minutes to seconds
+lethe_minutes() { echo $(( ${1:-0} * 60 )); }
+ 
+# lethe_hours <n>
+# Convert hours to seconds
+lethe_hours() { echo $(( ${1:-0} * 3600 )); }
+
 # lethe_ttl <key>
 # Print remaining TTL in seconds, or 0 if expired/missing
 lethe_ttl() {
