@@ -20,7 +20,7 @@ module_helloworld() {
     local data=$(jq -nc \
         --arg icon  "$icon" \
         --arg text  "$text" \
-        --arg class "$success" \
+        --arg class "success" \
         --arg line1 "$tooltip_line1" \
         --arg line2 "$tooltip_line2" \
         '{

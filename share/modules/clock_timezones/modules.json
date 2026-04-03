@@ -1,0 +1,25 @@
+{
+    "name": "clock_timezones",
+    "version": "1.0.0",
+    "author": "Edgar Masagué",
+    "description_en": "Clock with multiple timezone support",
+    "description_es": "Reloj con soporte para múltiples zonas horarias",
+    "description_pt": "Relógio com suporte a múltiplos fusos horários",
+    "category": "time",
+    "icon": "⌛",
+    "config": {
+        "display": "icon-text",
+        "cache_key": "clock_timezones",
+        "ttl": 5,
+        "geo_ttl": 1440,
+        "icon": "󰥔",
+        "timezones": [
+            {"zone": "America/Caracas",     "city": "Caracas", "country": "VE"},
+            {"zone": "America/Mexico_City", "city": "CDMX",  "country": "MX"},
+            {"zone": "Europe/Lisbon",       "city": "Lisboa",  "country": "PT"},
+            {"zone": "Europe/Madrid",       "city": "Madrid",  "country": "ES"},
+            {"zone": "Asia/Shanghai",       "city": "Beijing", "country": "CN"},
+            {"zone": "Asia/Tokyo",          "city": "Tokyo",   "country": "JP"}
+        ]
+    }
+}
