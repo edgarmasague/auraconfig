@@ -1,0 +1,19 @@
+{
+    "name": "updates",
+    "version": "1.0.0",
+    "author": "Edgar Masagué",
+    "description_en": "System and Flatpak update counter",
+    "description_es": "Contador de actualizaciones del sistema y Flatpak",
+    "description_pt": "Contador de atualizações do sistema e Flatpak",
+    "category": "system",
+    "icon": "🔄",
+    "config": {
+        "check_flatpak": "true",
+        "check_snap": "false",
+        "display": "icon",
+        "cache_key": "updates",
+        "ttl": 60,
+        "icon_update": "󱄋",
+        "icon_no_update": "󰑓"
+    }
+}

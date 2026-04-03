@@ -6,7 +6,7 @@
     "description_es": "Reloj con soporte para múltiples zonas horarias",
     "description_pt": "Relógio com suporte a múltiplos fusos horários",
     "category": "time",
-    "icon": "⌛",
+    "icon": "🕔",
     "config": {
         "display": "icon-text",
         "cache_key": "clock_timezones",
@@ -15,7 +15,7 @@
         "icon": "󰥔",
         "timezones": [
             {"zone": "America/Caracas",     "city": "Caracas", "country": "VE"},
-            {"zone": "America/Mexico_City", "city": "CDMX",  "country": "MX"},
+            {"zone": "America/Mexico_City", "city": "CDMX",    "country": "MX"},
             {"zone": "Europe/Lisbon",       "city": "Lisboa",  "country": "PT"},
             {"zone": "Europe/Madrid",       "city": "Madrid",  "country": "ES"},
             {"zone": "Asia/Shanghai",       "city": "Beijing", "country": "CN"},
